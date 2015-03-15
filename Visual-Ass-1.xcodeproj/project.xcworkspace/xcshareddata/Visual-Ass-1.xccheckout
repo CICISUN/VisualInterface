@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B158E524-F356-4FC9-8AA9-7CEF941A7FDE</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Visual-Ass-1</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>96BA67AF60F8940026E8BFD54611A55C7FF26D8B</key>
+		<string>https://github.com/CICISUN/VisualInterface</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Visual-Ass-1.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>96BA67AF60F8940026E8BFD54611A55C7FF26D8B</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/CICISUN/VisualInterface</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>96BA67AF60F8940026E8BFD54611A55C7FF26D8B</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>96BA67AF60F8940026E8BFD54611A55C7FF26D8B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Visual-Ass-1</string>
+		</dict>
+	</array>
+</dict>
+</plist>
