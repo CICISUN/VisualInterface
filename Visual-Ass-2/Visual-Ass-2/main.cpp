@@ -15,40 +15,49 @@
 #include <tuple>
 #include <stdio.h>
 #include <stdarg.h>
+#include <array>
 
 using namespace cv;
 using namespace std;
 
 int IMAGE_SIZE=40;
-int BIN_SIZE=52;
-int histSize[3] = {BIN_SIZE, BIN_SIZE, BIN_SIZE};
+int BIN_SIZE=5;
+int BIN_NUM=255/BIN_SIZE+1;
+int histSize[3] = {BIN_NUM, BIN_NUM, BIN_NUM};
 typedef tuple<int,int,double,Mat> tuple_data; //id a, id b, diff, mat
 
 bool new_compare (const tuple_data &lhs, const tuple_data &rhs){
-  return get<2>(lhs) > get<2>(rhs);
+  return get<2>(lhs) < get<2>(rhs);
 }
 
-double calc_l1norm(Mat a, Mat b){
+
+/*************************************************************************
+    calc_l1norm function: calc_l1norm for two images
+*************************************************************************/
+
+double calc_l1norm(vector<vector<vector<int>>> a, vector<vector<vector<int>>> b){
     double diff=0.0;
-    int nonblack_pixels=0,ii=0;
+    int nonblack_pixels=0;
         //Iterate thru all bins using indexes, calculate l1-norm for each pair
     for (int i=0; i<histSize[0]; i++) {
         for (int j=0; j<histSize[1]; j++) {
             for (int k=0; k<histSize[2]; k++) {
-                if(i<8 || j<8 || k<8){continue;}
-                else{
-                    diff+=abs(a.at<double>(i, j, k)-b.at<double>(i, j, k));
-                    nonblack_pixels=nonblack_pixels+abs(a.at<double>(i, j, k))+abs(b.at<double>(i, j, k));
-                    cout<<"diff: "<<diff<<"nb: "<<nonblack_pixels<<endl;
-                }
+                 
+                diff+=abs(a[i][j][k]-b[i][j][k]);
+                nonblack_pixels=nonblack_pixels+abs(a[i][j][k])+abs(b[i][j][k]);
             }
         }
     }
-    
+//    cout<<diff/nonblack_pixels<<endl;
     return diff/nonblack_pixels;
 }
   
-void cvShowManyImages(tuple_data self,tuple_data a,tuple_data b,tuple_data c,tuple_data x,tuple_data y,tuple_data z) {
+/*************************************************************************
+    cvShowManyImages function: cvShowManyImages for seven images
+*************************************************************************/
+
+
+void cvShowManyImages(int ID,tuple_data self,tuple_data a,tuple_data b,tuple_data c,tuple_data x,tuple_data y,tuple_data z) {
     // img - Used for getting the arguments 
     Mat disp_img(Size(750,80),CV_8UC3);
 
@@ -68,26 +77,62 @@ void cvShowManyImages(tuple_data self,tuple_data a,tuple_data b,tuple_data c,tup
     yy.copyTo(disp_img(Rect(550,0, aa.cols, aa.rows)));
     zz.copyTo(disp_img(Rect(650,0, aa.cols, aa.rows)));
     
-    putText(disp_img, std::to_string(get<1>(self)),Point(45,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+    putText(disp_img, std::to_string(get<1>(self)), Point(45,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(a)) , Point(200,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(b)) , Point(300,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(c)) , Point(400,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(x)) , Point(500,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(y)) , Point(600,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
     putText(disp_img, std::to_string(get<1>(z)) , Point(700,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
-    namedWindow("result");
-    imshow("result",disp_img);
+    
+    namedWindow("result"+to_string(ID));
+    imshow("result"+to_string(ID),disp_img);
+    
+    String filename=to_string(ID)+".jpg";
 
-    waitKey(0);
+    imwrite(filename, disp_img);
+
+    disp_img=Scalar(0,0,0);
+    disp_img.release();
+//    waitKey(0);
 }
- 
 
-void find_best_worst(Mat self,Mat self_orig, int ID){\
+
+/*************************************************************************
+    calchistogram function: calchistogram for each image
+*************************************************************************/
+
+
+vector<vector<vector<int>>> calchistogram(Mat image){
     
-    int channel_numbers[] = { 0, 1, 2 };
-    float ch_range[] = { 0.0, 255.0 };
-    const float* channel_ranges[] = {ch_range, ch_range, ch_range};
+    vector<vector<vector<int>>> histogram (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
     
+    
+    for(int i = 0; i < image.rows; i++){
+        for(int j = 0; j < image.cols; j++)
+        {
+            int b = image.at<Vec3b>(i,j)[0];
+            int g = image.at<Vec3b>(i,j)[1];
+            int r = image.at<Vec3b>(i,j)[2];
+            // cout << r/BIN_SIZE << " " << g/BIN_SIZE << " " << b/BIN_SIZE << endl ;
+            if (b < 40 && g < 40 && r < 40){
+                continue;
+            }
+            else{
+                histogram[r/BIN_SIZE][g/BIN_SIZE][b/BIN_SIZE]+=1;
+                
+            }
+        }
+    }
+    return histogram;
+}
+
+/*************************************************************************
+    find_best_worst function: find_best_worst for each image
+*************************************************************************/
+
+void find_best_worst(vector<vector<vector<int>>> self, Mat self_orig, int ID){\
+  
     vector<tuple_data> data;//to store all diff,id pairs
     vector<tuple_data> result;
     //Find nearest & furthest images by iterating thru all images
@@ -97,14 +142,16 @@ void find_best_worst(Mat self,Mat self_orig, int ID){\
         //Deal with filename
         String filename;
         if(id<10)
-            {filename="i0"+std::to_string(id)+".ppm";}
+            {filename="i0"+to_string(id)+".ppm";}
         else
-            {filename="i"+std::to_string(id)+".ppm";}
+            {filename="i"+to_string(id)+".ppm";}
         //Calculate Histogram of the image comparing to
         Mat image_b = imread(filename, IMREAD_COLOR);
-        Mat histogram_b;
-        calcHist(&image_b, 1, channel_numbers, Mat(), histogram_b, 3, histSize, channel_ranges );
+        vector<vector<vector<int>>> histogram_b (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+        // calcHist(&image_b, 1, channel_numbers, Mat(), histogram_b, 3, histSize, channel_ranges );
 //        normalize(histogram_b, histogram_b, 0, image_b.rows, NORM_L2, -1, Mat() );
+
+        histogram_b=calchistogram(image_b);
 
         double tmp_diff=calc_l1norm(self,histogram_b);
 
@@ -129,39 +176,50 @@ void find_best_worst(Mat self,Mat self_orig, int ID){\
         }
     }
 
-    cvShowManyImages(result[0],result[1],result[2],result[3],result[4],result[5],result[6]);
+    cvShowManyImages(ID, result[0],result[1],result[2],result[3],result[4],result[5],result[6]);
 
 }
 
-void calchistogram(Mat image, int ID){
+/*************************************************************************
+    part_one: find_best_worst for each image, find best_worst four-image groups
+*************************************************************************/
+
+void part_one(Mat image, int ID){
     //histogram[red][green][blue] for image[ID]
-    Mat histogram;
-    int channel_numbers[] = { 0, 1, 2 };
-    int* number_bins = new int[image.channels()];
-    float ch_range[] = { 0.0, 255.0 };
-    const float* channel_ranges[] = {ch_range, ch_range, ch_range};
-    //The functions calcHist calculate the histogram of one or more arrays. 
-    calcHist(&image, 1, channel_numbers, Mat(), histogram, 3, histSize, channel_ranges );
-//    normalize(histogram, histogram, 0, image.rows, NORM_L2, -1, Mat() );
+    vector<vector<vector<int>>> histogram (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+    histogram=calchistogram(image);
     
-
     find_best_worst(histogram, image, ID);
-
 }
 
-void readimages(int IMAGESIZE){
+
+/*************************************************************************
+    readimages function: trigger comparison for each image
+*************************************************************************/
+
+void readimages_part_one(int IMAGE_SIZE){
     //read in each file and compute the color histogram
-    String filename="i01.ppm";
-    Mat image = imread(filename, IMREAD_COLOR);
-    calchistogram(image,1);  
+    
+    for (int i=1; i<=IMAGE_SIZE;i++){
+        String filename;
+        if(i<10)
+            {filename="i0"+to_string(i)+".ppm";}
+        else
+            {filename="i"+to_string(i)+".ppm";} 
+
+        Mat image = imread(filename, IMREAD_COLOR);
+        part_one(image,i);  
+    }
 }
 
-
-
+/*************************************************************************
+    main function
+*************************************************************************/
 int main(int argc, const char * argv[]) {
 
-    readimages(40);
+    readimages_part_one(40);
     
+ 
     // //Step 1
     // print "COLOR:"
     // colorhist = readfiles1()
@@ -181,7 +239,7 @@ int main(int argc, const char * argv[]) {
     // //Step 4:
     // step4plot(Tvals, Cvals, S)
     
-    waitKey();
+//    waitKey();
 
     std::cout << "Done.\n";
     return 0;
