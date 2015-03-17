@@ -266,48 +266,6 @@ void find_best_worst_overall(int IMAGE_SIZE){
     }
    }
 
-
-
-//    for(int i=0; i<39; i++){
-//         for (int j= i+1; j<40; j++){
-// //            cout<<", "<<comb[i][j];
-//             if(comb[i][j]>max_his_a){
-//                 max_his_a=comb[i][j];
-//                 Max_a=i;
-//                 Max_b=j;
-//             }
-//             else if(comb[i][j] >max_his_b){
-//                 max_his_b=comb[i][j];
-//                 Max_c=i;
-//                 Max_d=j;
-//             }
-//             else if(comb[i][j] <min_his_a){
-//                 min_his_a=comb[i][j];
-//                 Min_a=i;
-//                 Min_b=j;
-//             }
-//             else if(comb[i][j] <min_his_b){
-//                 min_his_b=comb[i][j];
-//                 Min_c=i;
-//                 Min_d=j;
-//             }
-//         }
-         
-//     }
-    
-    //for printing out the nn matrix
-    // for ( std::vector<std::vector<int>>::size_type i = 0; i < comb.size(); i++ )
-    // {
-    //     for ( std::vector<int>::size_type j = 0; j < comb[i].size(); j++ )
-    //     {
-    //         std::cout << comb[i][j] << ' ';
-    //     }
-    //     std::cout << std::endl;
-    // }
-//    cout<< min_his_a<< " "<<max_his_a<<endl;
-//    cout<< Max_a<<" "<< Max_b<<" "<< Max_c<<" "<< Max_d<<endl;
-//    cout<<Min_a<<" "<< Min_b<<" "<< Min_c<<" "<< Min_d<<endl;
-//
     //  0.738717 1
     // 14 18 29 30
     // 5 6 8 10
@@ -327,7 +285,7 @@ void part_one(Mat image, int ID){
 
 
 /*************************************************************************
-    readimages function: trigger comparison for each image
+    readimages_part_one function: trigger comparison for each image
 *************************************************************************/
 
 void readimages_part_one(int IMAGE_SIZE){
@@ -396,7 +354,7 @@ for(int r = 1; r < 60-1; r++){
 
 
 /*************************************************************************
-    calc_l1norm_two function: calc_l1norm_two for two images
+    calc_l1norm_two function: calc_l1norm_two for two images with 1D histogram
 *************************************************************************/
 
 double calc_l1norm_two(vector<int> a, vector<int> b){
@@ -472,7 +430,7 @@ void find_best_worst_two(vector<int> self, Mat self_orig, int ID){
 
 
 /*************************************************************************
-    fillhis function: fillup his for each pair image
+    fillhis_tex function: fillup fillhis_tex for each pair image
 *************************************************************************/
 
 vector<vector<double>> fillhis_tex(int start, int end){
@@ -515,7 +473,7 @@ vector<vector<double>> fillhis_tex(int start, int end){
 
 
 /*************************************************************************
-    find_best_worst function: find_best_worst_overall for each image
+    find_best_worst_overall_two function: find_best_worst_overall for each image
 *************************************************************************/
 void find_best_worst_overall_two(int IMAGE_SIZE){
   
@@ -562,7 +520,7 @@ void find_best_worst_overall_two(int IMAGE_SIZE){
 }
 
 /*************************************************************************
-    find_best_worst function: find_best_worst_overall for each image
+    part_two: intermediate function
 *************************************************************************/
 
 void part_two(Mat image, int ID){
@@ -618,7 +576,7 @@ void readimages_part_two(int IMAGE_SIZE){
     //
 *************************************************************************/
 
-void cluster(double a[40][40]){
+vector<int>  cluster(double a[40][40]){
    real_2d_array xy;
     
     xy.setlength(40, 40);
@@ -657,12 +615,19 @@ void cluster(double a[40][40]){
     clusterizergetkclusters(rep, 7, cidx, cz);
     printf("%s\n", cidx.tostring().c_str()); // EXPECTED: [0,0,1,1,1]
 
+    vector<int> res(40);
+
+    for(int i=0;i<40;i++){
+        res[i]=cidx(i);
+    }
+
+    return res;
+
 }
 
 
-
 /*************************************************************************
-    readimages function for parttwo: Read file pixel information for histogram comparison
+    readimages_part_three: Read file pixel information for clustering
 *************************************************************************/
 
 void readimages_part_three(int IMAGE_SIZE, double r){
@@ -712,11 +677,12 @@ void readimages_part_three(int IMAGE_SIZE, double r){
 
     }
    }
-   cluster(a);
+   vector<int> result(40);
+   result=cluster(a);
 }
 
 /*************************************************************************
-    main function for partfour: Read file pixel information for histogram comparison
+    find_best_worst_four: Return 2D data
 *************************************************************************/
 
 
@@ -771,7 +737,7 @@ vector<vector<tuple_data>> find_best_worst_four(vector<vector<vector<int>>> self
 
 
 /*************************************************************************
-    main function for partfour: Read file pixel information for histogram comparison
+    find_best_worst_four_tex: return 2D data
 *************************************************************************/
 
 
@@ -830,7 +796,7 @@ vector<vector<tuple_data>> find_best_worst_four_tex(vector<int> self, Mat self_o
 }
 
 /*************************************************************************
-    main function for partfour: Read file pixel information for histogram comparison
+    mcompare_raw: compute texture/color similairty
 *************************************************************************/
 
 double compare_raw(vector<vector<tuple_data>> sample,vector<vector<int>> input, int type){
@@ -893,7 +859,102 @@ if(type==2){
 
 
 /*************************************************************************
-    main function for partfour: Read file pixel information for histogram comparison
+    compare_cluster: calculate cluster sim using Rand Index
+*************************************************************************/
+
+
+double compare_cluster(vector<int> sample, vector<int> input){
+
+    int S1T1=0, S0T0=0, S1T0=0, S0T1=0;
+    int S_a=0, S_b=0, T_a=0, T_b=0;
+ 
+
+    for(int i=0;i<40;i++){
+
+        S_a=sample[i];
+        T_a=input[i];
+        for(int j=i+1;j<40;j++){
+            S_b=sample[j];
+            T_b=input[j];
+            if(T_b==T_a){
+                if(S_a==S_b){
+                    S1T1++;
+                }
+                else{S0T1++;}
+            }
+            else if(S_a==S_b){
+                S1T0++;
+            }
+            else{S0T0++;}
+        }
+    }
+
+    cout<<S1T1<<" "<<S0T0<<" "<<S1T0<<" "<<S0T1<<endl;
+
+    return (double)((float)(S1T1+S0T0)/(float)(S1T1+ S0T0+S1T0+ S0T1));
+
+
+
+}
+
+String filename(int i){
+    String filename;
+       if(i<10)
+           {filename="i0"+to_string(i)+".ppm";}
+       else
+           {filename="i"+to_string(i)+".ppm";} 
+       return filename;
+}
+
+void print_friends_data(vector<vector<int>> input){
+
+     for (int i=0; i<40;i++){
+
+       Mat disp_img(Size(600,80),CV_8UC3);
+
+        int selff=input[i][0];
+        int aa=input[i][1];
+        int bb=input[i][2];
+        int cc=input[i][3];
+        int xx=input[i][4];
+
+     Mat self = imread(filename(selff), IMREAD_COLOR); 
+     Mat a = imread(filename(aa), IMREAD_COLOR); 
+     Mat b = imread(filename(bb), IMREAD_COLOR); 
+     Mat c = imread(filename(cc), IMREAD_COLOR); 
+     Mat x = imread(filename(xx), IMREAD_COLOR);   
+
+   
+
+    self.copyTo(disp_img(Rect(0,0, a.cols, a.rows)));
+    a.copyTo(disp_img(Rect(150,0, a.cols, a.rows)));
+    b.copyTo(disp_img(Rect(250,0, a.cols, a.rows)));
+    c.copyTo(disp_img(Rect(350,0, a.cols, a.rows)));
+    x.copyTo(disp_img(Rect(450,0, a.cols, a.rows)));
+  
+    
+    putText(disp_img, std::to_string(selff), Point(45,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+    putText(disp_img, std::to_string(aa) , Point(200,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+    putText(disp_img, std::to_string(bb) , Point(300,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+    putText(disp_img, std::to_string(cc) , Point(400,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+    putText(disp_img, std::to_string(xx) , Point(500,70), CV_FONT_NORMAL, 0.5, Scalar(255,255,255),1,1);
+ 
+    namedWindow("result"+to_string(selff));
+    imshow("result"+to_string(selff),disp_img);
+    
+    String filename=to_string(selff)+".jpg";
+
+    imwrite(filename, disp_img);
+
+    disp_img=Scalar(0,0,0);
+    disp_img.release();
+}
+
+
+}
+
+/*************************************************************************
+    readimages_part_four: Read file calculate similarity for part four
 *************************************************************************/
 
 
@@ -903,6 +964,7 @@ void readimages_part_four(){
    vector<vector<tuple_data>> sys_result_tex;
    double c_score;
    double t_score;
+   double cl_score;
 
 
    for (int i=1; i<=IMAGE_SIZE;i++){
@@ -929,7 +991,7 @@ void readimages_part_four(){
    }
 
     vector<vector<int>> input (40, vector<int>(5));
-    ifstream in("rawdata_skylar.txt"); 
+    ifstream in("rawdata_skylar.txt");
      
     for(int i = 0; i < 40; ++i){
         for(int j = 0; j < 5; ++j){
@@ -937,6 +999,8 @@ void readimages_part_four(){
         }
     }
     in.close();
+
+    print_friends_data(input);
  
     // for(int i = 0; i < 40; ++i){
     //     for(int j = 0; j < 5; ++j){
@@ -950,9 +1014,65 @@ void readimages_part_four(){
        t_score=compare_raw(sys_result_tex,input,2);
    }
    
-   cout<<c_score<<endl;
-    cout<<t_score<<endl;
+    cout<<"color: "<<c_score<<endl;
+    cout<<"texture: "<<t_score<<endl;
 
+    vector<int> cluster_data(40);
+    ifstream ins("clusterdata_skylar.txt");
+    for(int j = 0; j < 40; ++j){
+        ins >> cluster_data[j];
+    }
+    ins.close();
+
+
+   double a[40][40];
+   double T, C;
+   vector<vector<int>> grey_image_a (60,vector<int>(89));
+   vector<vector<int>> grey_image_b (60,vector<int>(89));
+   vector<int> histogram_b (4000/BIN_SIZE_2);
+   vector<int> histogram_a (4000/BIN_SIZE_2);
+   vector<vector<vector<int>>> his_a (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+   vector<vector<vector<int>>> his_b (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+   vector<int> res(40);
+
+   for(int i=0;i<40;i++){
+    for(int j=0;j<40;j++){
+
+        String filename_a, filename_b;
+        if(i+1<10)
+            {filename_a="i0"+to_string(i+1)+".ppm";}
+        if(i+1>=10)
+            {filename_a="i"+to_string(i+1)+".ppm";} 
+        if(j+1<10)
+            {filename_b="i0"+to_string(j+1)+".ppm";}
+        if(j+1>=10)
+            {filename_b="i"+to_string(j+1)+".ppm";}
+
+       
+        Mat image_a = imread(filename_a, IMREAD_COLOR);
+        Mat image_b = imread(filename_b, IMREAD_COLOR);
+
+        grey_image_a=calc_grey(image_a,i+1);
+        grey_image_b=calc_grey(image_b,j+1);
+
+        histogram_a=calc_laplacian(grey_image_a,i+1);
+        histogram_b=calc_laplacian(grey_image_b,j+1);
+
+        T=calc_l1norm_two(histogram_a,histogram_b);
+
+        his_a=calchistogram(image_a);
+        his_b=calchistogram(image_b);
+
+        C=calc_l1norm(his_a,his_b);
+
+        a[i][j]=0.8 * T +(1-0.8) * C;
+
+    }
+   }
+   res = cluster(a);
+
+   cl_score=compare_cluster(res,cluster_data);
+   cout<<cl_score<<endl;
 
 }
 
@@ -962,16 +1082,16 @@ void readimages_part_four(){
 int main(int argc, const char * argv[]) { 
  
     //Step 1
-    // cout<<"loading images for part one..."<<endl;
-    // readimages_part_one(40);
+    cout<<"loading images for part one..."<<endl;
+    readimages_part_one(40);
     
     //Step 2
-    // cout<<"loading images for part two..."<<endl;
-    // readimages_part_two(40);
+    cout<<"loading images for part two..."<<endl;
+    readimages_part_two(40);
     
     //Step 3
-    // cout<<"loading images for part three..."<<endl;
-    // readimages_part_three(40, 0.5);
+    cout<<"loading images for part three..."<<endl;
+    readimages_part_three(40, 0.5);
     
     //r==1
     // [3,5,3,6,6,5,6,3,6,3,3,6,6,5,6,6,2,4,2,4,4,4,2,2,2,0,1,2,4,4,6,4,4,4,4,4,4,2,5,5]
@@ -988,11 +1108,19 @@ int main(int argc, const char * argv[]) {
 
     //Step 4:
     cout<<"calculating results for part four..."<<endl;
-
     readimages_part_four();
-    
-//    waitKey();
+    // [4,5,4,6,6,5,6,4,6,4,4,6,4,6,6,4,2,3,2,3,3,3,2,2,2,0,1,2,3,3,6,3,3,3,3,3,3,2,5,5]
+    // [5,0,5,4,4,6,4,5,4,5,5,4,4,4,4,4,3,3,3,3,3,3,3,3,3,1,2,3,3,3,4,3,3,3,3,3,3,3,6,6]
+    // 74 510 155 41
+    // 0.748718
 
-    std::cout << "Done.\n";
+    // [4,5,4,6,6,5,6,4,6,4,4,6,4,6,6,4,2,3,2,3,3,3,2,2,2,0,1,2,3,3,6,3,3,3,3,3,3,2,5,5]
+    // [5,0,5,4,4,6,4,5,4,5,5,4,4,4,4,4,3,3,3,3,3,3,3,3,3,1,2,3,3,3,4,3,3,3,3,3,3,3,6,6]
+    // 60 501 169 50
+    // 0.719231
+    
+    waitKey();
+
+    cout << "Done.\n";
     return 0;
 }
