@@ -15,10 +15,16 @@
 #include <tuple>
 #include <stdio.h>
 #include <stdarg.h>
- 
+#include "stdafx.h"
+#include <stdlib.h>
+#include <math.h>
+#include "dataanalysis.h" 
+#include <fstream>
 
 using namespace cv;
 using namespace std;
+using namespace alglib;
+
 
 int IMAGE_SIZE=40;
 int BIN_SIZE=5;
@@ -596,6 +602,360 @@ void readimages_part_two(int IMAGE_SIZE){
 }
 
 
+
+/*************************************************************************
+    // We have a set of points in 1D space:
+    //     (P0,P1,P2,P3,P4) = (1, 3, 10, 16, 20)
+    //
+    // We want to perform Agglomerative Hierarchic Clusterization (AHC),
+    // using either complete or single linkage and Euclidean distance
+    // (default metric).
+    //
+    // First two steps merge P0/P1 and P3/P4 independently of the linkage type.
+    // However, third step depends on linkage type being used:
+    // * in case of complete linkage P2=10 is merged with [P0,P1]
+    // * in case of single linkage P2=10 is merged with [P3,P4]
+    //
+*************************************************************************/
+
+void cluster(double a[40][40]){
+   real_2d_array xy;
+    
+    xy.setlength(40, 40);
+    
+    for ( int i = 0; i < 40; i++ )
+    {
+        for ( int j = 0; j < 40; j++ )
+        {
+            xy(i,j) = a[i][j];
+        }
+    }
+
+    clusterizerstate s;
+    ahcreport rep;
+    // real_2d_array xy=a;
+    // real_2d_array xy = "[[1],[3],[10],[16],[20]]";
+    integer_1d_array cidx;
+    integer_1d_array cz;
+
+    clusterizercreate(s);
+    clusterizersetpoints(s, xy, 2);
+
+    // use complete linkage, reduce set down to 2 clusters.
+    // print clusterization with clusterizergetkclusters(2).
+    // P2 must belong to [P0,P1]
+    clusterizersetahcalgo(s, 0);
+    clusterizerrunahc(s, rep);
+    clusterizergetkclusters(rep, 7, cidx, cz);
+    printf("%s\n", cidx.tostring().c_str()); // EXPECTED: [1,1,1,0,0]
+
+    // use single linkage, reduce set down to 2 clusters.
+    // print clusterization with clusterizergetkclusters(2).
+    // P2 must belong to [P2,P3]
+    clusterizersetahcalgo(s, 1);
+    clusterizerrunahc(s, rep);
+    clusterizergetkclusters(rep, 7, cidx, cz);
+    printf("%s\n", cidx.tostring().c_str()); // EXPECTED: [0,0,1,1,1]
+
+}
+
+
+
+/*************************************************************************
+    readimages function for parttwo: Read file pixel information for histogram comparison
+*************************************************************************/
+
+void readimages_part_three(int IMAGE_SIZE, double r){
+ 
+   double a[40][40];
+   double T, C;
+   vector<vector<int>> grey_image_a (60,vector<int>(89));
+   vector<vector<int>> grey_image_b (60,vector<int>(89));
+   vector<int> histogram_b (4000/BIN_SIZE_2);
+   vector<int> histogram_a (4000/BIN_SIZE_2);
+   vector<vector<vector<int>>> his_a (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+   vector<vector<vector<int>>> his_b (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+   
+   for(int i=0;i<40;i++){
+    for(int j=0;j<40;j++){
+
+        String filename_a, filename_b;
+        if(i+1<10)
+            {filename_a="i0"+to_string(i+1)+".ppm";}
+        if(i+1>=10)
+            {filename_a="i"+to_string(i+1)+".ppm";} 
+        if(j+1<10)
+            {filename_b="i0"+to_string(j+1)+".ppm";}
+        if(j+1>=10)
+            {filename_b="i"+to_string(j+1)+".ppm";}
+
+       
+        Mat image_a = imread(filename_a, IMREAD_COLOR);
+        Mat image_b = imread(filename_b, IMREAD_COLOR);
+
+        grey_image_a=calc_grey(image_a,i+1);
+        grey_image_b=calc_grey(image_b,j+1);
+
+        histogram_a=calc_laplacian(grey_image_a,i+1);
+        histogram_b=calc_laplacian(grey_image_b,j+1);
+
+        T=calc_l1norm_two(histogram_a,histogram_b);
+
+        his_a=calchistogram(image_a);
+        his_b=calchistogram(image_b);
+
+        C=calc_l1norm(his_a,his_b);
+
+
+
+        a[i][j]=r * T +(1-r) * C;
+
+    }
+   }
+   cluster(a);
+}
+
+/*************************************************************************
+    main function for partfour: Read file pixel information for histogram comparison
+*************************************************************************/
+
+
+vector<vector<tuple_data>> find_best_worst_four(vector<vector<vector<int>>> self, Mat self_orig, vector<vector<tuple_data>> result,int ID){
+
+    vector<tuple_data> data;//to store all diff,id pairs
+    vector<tuple_data> tmp_result;
+    //Find nearest & furthest images by iterating thru all images
+    for (int id=1; id<=IMAGE_SIZE; id++){
+    //If not current image
+    if( ID!=id){
+        //Deal with filename
+        String filename;
+        if(id<10)
+            {filename="i0"+to_string(id)+".ppm";}
+        else
+            {filename="i"+to_string(id)+".ppm";}
+        //Calculate Histogram of the image comparing to
+        Mat image_b = imread(filename, IMREAD_COLOR);
+        vector<vector<vector<int>>> histogram_b (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+        // calcHist(&image_b, 1, channel_numbers, Mat(), histogram_b, 3, histSize, channel_ranges );
+//        normalize(histogram_b, histogram_b, 0, image_b.rows, NORM_L2, -1, Mat() );
+
+        histogram_b=calchistogram(image_b);
+
+        double tmp_diff=calc_l1norm(self,histogram_b);
+
+        data.push_back(make_tuple(ID,id,tmp_diff,image_b));
+
+    }
+  
+} 
+    //sort tuple array using new comparator, in decreasing order
+    sort(data.begin(),data.end(),new_compare);
+
+    tmp_result.push_back(make_tuple(ID,ID,0.0,self_orig));
+    //iterate to get largest and smallest six
+    for (int i=0; i<data.size(); i++) {
+        if(i<3){
+            tmp_result.push_back(data[i]);
+//            cout <<get<0>(data[i]) << "\t" << get<1>(data[i]) << "\t" << get<2>(data[i]) << endl;
+        }
+        if(i>data.size()-4){
+            tmp_result.push_back(data[i]);
+//            cout <<get<0>(data[i]) << "\t" << get<1>(data[i]) << "\t" << get<2>(data[i]) << endl;
+        }
+    }
+
+    result.push_back(tmp_result);
+    return result;
+}
+
+
+/*************************************************************************
+    main function for partfour: Read file pixel information for histogram comparison
+*************************************************************************/
+
+
+vector<vector<tuple_data>> find_best_worst_four_tex(vector<int> self, Mat self_orig, vector<vector<tuple_data>> result,int ID){
+    
+    vector<tuple_data> data;//to store all diff,id pairs
+    vector<tuple_data> tmp_result;
+    //Find nearest & furthest images by iterating thru all images
+    for (int id=1; id<=IMAGE_SIZE; id++){
+    //If not current image
+    if( ID!=id){
+        //Deal with filename
+        String filename;
+        if(id<10)
+            {filename="i0"+to_string(id)+".ppm";}
+        else
+            {filename="i"+to_string(id)+".ppm";}
+        //Calculate Histogram of the image comparing to
+        Mat image_b = imread(filename, IMREAD_COLOR);
+        
+        vector<vector<int>> grey_image (60,vector<int>(89));
+        
+        vector<int> histogram_b (4000/BIN_SIZE_2);
+
+        grey_image=calc_grey(image_b,id);
+       
+        //laplacian images
+        histogram_b=calc_laplacian(grey_image,id);
+
+        double tmp_diff=calc_l1norm_two(self,histogram_b);
+
+        data.push_back(make_tuple(ID,id,tmp_diff,image_b));
+
+    }
+  
+} 
+    //sort tuple array using new comparator, in decreasing order
+    sort(data.begin(),data.end(),new_compare);
+
+    tmp_result.push_back(make_tuple(ID,ID,0.0,self_orig));
+    //iterate to get largest and smallest six
+    for (int i=0; i<data.size(); i++) {
+        if(i<3){
+            tmp_result.push_back(data[i]);
+//            cout <<get<0>(data[i]) << "\t" << get<1>(data[i]) << "\t" << get<2>(data[i]) << endl;
+        }
+        if(i>data.size()-4){
+            tmp_result.push_back(data[i]);
+//            cout <<get<0>(data[i]) << "\t" << get<1>(data[i]) << "\t" << get<2>(data[i]) << endl;
+        }
+    }
+
+      result.push_back(tmp_result);
+    return result;
+
+}
+
+/*************************************************************************
+    main function for partfour: Read file pixel information for histogram comparison
+*************************************************************************/
+
+double compare_raw(vector<vector<tuple_data>> sample,vector<vector<int>> input, int type){
+
+double score=0.0;
+
+if(type==1){
+    for(int i=0;i<40;i++){
+        for (int j=0;j<7;j++){
+
+            int cur_ID=get<0>(sample[i][j]);
+            int second_ID=get<1>(sample[i][j]);
+            int input_alike=input[i][1];
+            int input_unlike=input[i][2];
+
+            if(j==1){
+                if(input_alike==second_ID){score+=3;}
+            }
+            else if(j==2){
+                if(input_alike==second_ID){score+=2;}
+            }
+            else if(j==3){
+                if(input_alike==second_ID){score+=1;}
+            }
+            else if(j==4 || j==5 || j==6){
+                if(input_alike==second_ID){score-=1;}
+            }
+        }
+    }
+}
+
+if(type==2){
+    for(int i=0;i<40;i++){
+        for (int j=0;j<7;j++){
+
+            int cur_ID=get<0>(sample[i][j]);
+            int second_ID=get<1>(sample[i][j]);
+            int input_alike=input[i][3];
+            int input_unlike=input[i][4];
+
+            if(j==1){
+                if(input_alike==second_ID){score+=3;}
+            }
+            else if(j==2){
+                if(input_alike==second_ID){score+=2;}
+            }
+            else if(j==3){
+                if(input_alike==second_ID){score+=1;}
+            }
+            else if(j==4 || j==5 || j==6){
+                if(input_alike==second_ID){score-=1;}
+            }
+        }
+    }
+}
+
+    return score/40;
+
+}
+
+
+/*************************************************************************
+    main function for partfour: Read file pixel information for histogram comparison
+*************************************************************************/
+
+
+void readimages_part_four(){
+
+   vector<vector<tuple_data>> sys_result_color;
+   vector<vector<tuple_data>> sys_result_tex;
+   double c_score;
+   double t_score;
+
+
+   for (int i=1; i<=IMAGE_SIZE;i++){
+       String filename;
+       if(i<10)
+           {filename="i0"+to_string(i)+".ppm";}
+       else
+           {filename="i"+to_string(i)+".ppm";} 
+
+       Mat image = imread(filename, IMREAD_COLOR);
+
+       vector<vector<vector<int>>> histogram (BIN_NUM,vector<vector<int> >(BIN_NUM,vector <int>(BIN_NUM)));
+       histogram=calchistogram(image);
+        vector<vector<int>> grey_image (60,vector<int>(89));
+        vector<int> histogram_b;
+
+        grey_image=calc_grey(image,i);
+       
+        //laplacian images
+        histogram_b=calc_laplacian(grey_image,i);
+
+       sys_result_color = find_best_worst_four(histogram, image, sys_result_color,i);
+       sys_result_tex = find_best_worst_four_tex(histogram_b, image, sys_result_tex,i);
+   }
+
+    vector<vector<int>> input (40, vector<int>(5));
+    ifstream in("rawdata_skylar.txt"); 
+     
+    for(int i = 0; i < 40; ++i){
+        for(int j = 0; j < 5; ++j){
+            in >> input[i][j];
+        }
+    }
+    in.close();
+ 
+    // for(int i = 0; i < 40; ++i){
+    //     for(int j = 0; j < 5; ++j){
+    //         cout<<input[i][j]<<" ";
+    //     }
+    //     cout<<endl;
+    // }
+
+   for(int i=0;i<3;i++){
+       c_score=compare_raw(sys_result_color,input,1);
+       t_score=compare_raw(sys_result_tex,input,2);
+   }
+   
+   cout<<c_score<<endl;
+    cout<<t_score<<endl;
+
+
+}
+
 /*************************************************************************
     main function
 *************************************************************************/
@@ -609,14 +969,27 @@ int main(int argc, const char * argv[]) {
     // cout<<"loading images for part two..."<<endl;
     // readimages_part_two(40);
     
-    // //Step 3
-    // print "\nCOMBINED:"
+    //Step 3
+    // cout<<"loading images for part three..."<<endl;
+    // readimages_part_three(40, 0.5);
     
-    // S = combinecolortex(Tvals, Cvals)
-    // cluster(S)
-    
-    // //Step 4:
-    // step4plot(Tvals, Cvals, S)
+    //r==1
+    // [3,5,3,6,6,5,6,3,6,3,3,6,6,5,6,6,2,4,2,4,4,4,2,2,2,0,1,2,4,4,6,4,4,4,4,4,4,2,5,5]
+    // [2,6,2,3,3,6,3,2,3,2,2,6,3,6,6,3,4,4,4,4,4,4,4,4,4,0,1,4,4,4,3,4,4,4,4,4,4,4,5,5]
+    //r==0
+    // [5,2,5,5,3,3,3,5,3,5,3,1,1,1,3,5,0,0,5,2,2,2,3,5,0,3,4,3,6,6,4,6,3,2,0,5,6,5,2,3]
+    // [4,6,4,4,6,6,6,4,6,4,6,6,6,6,6,4,6,6,4,6,6,6,6,4,6,6,0,6,5,5,1,2,6,6,6,4,3,4,6,6]
+    //r==0.5
+    // [2,5,2,2,3,5,3,2,3,2,3,1,1,1,5,2,4,6,4,4,6,6,4,4,4,6,0,4,6,6,3,6,6,6,6,4,6,4,5,5]
+    // [4,5,4,4,6,6,6,4,6,4,6,5,0,5,6,4,6,6,6,6,6,6,6,6,6,1,2,6,6,6,3,6,6,6,6,6,6,6,5,6]
+    //r==0.8
+    // [4,5,4,6,6,5,6,4,6,4,4,6,4,6,6,4,2,3,2,3,3,3,2,2,2,0,1,2,3,3,6,3,3,3,3,3,3,2,5,5]
+    // [5,0,5,4,4,6,4,5,4,5,5,4,4,4,4,4,3,3,3,3,3,3,3,3,3,1,2,3,3,3,4,3,3,3,3,3,3,3,6,6]
+
+    //Step 4:
+    cout<<"calculating results for part four..."<<endl;
+
+    readimages_part_four();
     
 //    waitKey();
 

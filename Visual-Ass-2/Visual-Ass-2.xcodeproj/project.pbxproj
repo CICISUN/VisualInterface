@@ -7,6 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		429D43941AB7AFEC00CB401E /* alglibinternal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43871AB7AFEC00CB401E /* alglibinternal.cpp */; };
+		429D43951AB7AFEC00CB401E /* alglibmisc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43881AB7AFEC00CB401E /* alglibmisc.cpp */; };
+		429D43961AB7AFEC00CB401E /* ap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43891AB7AFEC00CB401E /* ap.cpp */; };
+		429D43971AB7AFEC00CB401E /* dataanalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438A1AB7AFEC00CB401E /* dataanalysis.cpp */; };
+		429D43981AB7AFEC00CB401E /* diffequations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438B1AB7AFEC00CB401E /* diffequations.cpp */; };
+		429D43991AB7AFEC00CB401E /* fasttransforms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438C1AB7AFEC00CB401E /* fasttransforms.cpp */; };
+		429D439A1AB7AFEC00CB401E /* integration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438D1AB7AFEC00CB401E /* integration.cpp */; };
+		429D439B1AB7AFEC00CB401E /* interpolation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438E1AB7AFEC00CB401E /* interpolation.cpp */; };
+		429D439C1AB7AFEC00CB401E /* linalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D438F1AB7AFEC00CB401E /* linalg.cpp */; };
+		429D439D1AB7AFEC00CB401E /* optimization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43901AB7AFEC00CB401E /* optimization.cpp */; };
+		429D439E1AB7AFEC00CB401E /* solvers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43911AB7AFEC00CB401E /* solvers.cpp */; };
+		429D439F1AB7AFEC00CB401E /* specialfunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43921AB7AFEC00CB401E /* specialfunctions.cpp */; };
+		429D43A01AB7AFEC00CB401E /* statistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 429D43931AB7AFEC00CB401E /* statistics.cpp */; };
 		42CFA48A1AB4E35F001D3A41 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42CFA4891AB4E35F001D3A41 /* main.cpp */; };
 		42CFA4AA1AB523D9001D3A41 /* libopencv_core.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CFA4961AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */; };
 		42CFA4AB1AB523D9001D3A41 /* libopencv_core.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CFA4971AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */; };
@@ -43,6 +56,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		429D43871AB7AFEC00CB401E /* alglibinternal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = alglibinternal.cpp; path = "Visual-Ass-2/alglibinternal.cpp"; sourceTree = "<group>"; };
+		429D43881AB7AFEC00CB401E /* alglibmisc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = alglibmisc.cpp; path = "Visual-Ass-2/alglibmisc.cpp"; sourceTree = "<group>"; };
+		429D43891AB7AFEC00CB401E /* ap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ap.cpp; path = "Visual-Ass-2/ap.cpp"; sourceTree = "<group>"; };
+		429D438A1AB7AFEC00CB401E /* dataanalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dataanalysis.cpp; path = "Visual-Ass-2/dataanalysis.cpp"; sourceTree = "<group>"; };
+		429D438B1AB7AFEC00CB401E /* diffequations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = diffequations.cpp; path = "Visual-Ass-2/diffequations.cpp"; sourceTree = "<group>"; };
+		429D438C1AB7AFEC00CB401E /* fasttransforms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fasttransforms.cpp; path = "Visual-Ass-2/fasttransforms.cpp"; sourceTree = "<group>"; };
+		429D438D1AB7AFEC00CB401E /* integration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = integration.cpp; path = "Visual-Ass-2/integration.cpp"; sourceTree = "<group>"; };
+		429D438E1AB7AFEC00CB401E /* interpolation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = interpolation.cpp; path = "Visual-Ass-2/interpolation.cpp"; sourceTree = "<group>"; };
+		429D438F1AB7AFEC00CB401E /* linalg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = linalg.cpp; path = "Visual-Ass-2/linalg.cpp"; sourceTree = "<group>"; };
+		429D43901AB7AFEC00CB401E /* optimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optimization.cpp; path = "Visual-Ass-2/optimization.cpp"; sourceTree = "<group>"; };
+		429D43911AB7AFEC00CB401E /* solvers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = solvers.cpp; path = "Visual-Ass-2/solvers.cpp"; sourceTree = "<group>"; };
+		429D43921AB7AFEC00CB401E /* specialfunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = specialfunctions.cpp; path = "Visual-Ass-2/specialfunctions.cpp"; sourceTree = "<group>"; };
+		429D43931AB7AFEC00CB401E /* statistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = statistics.cpp; path = "Visual-Ass-2/statistics.cpp"; sourceTree = "<group>"; };
 		42CFA4861AB4E35F001D3A41 /* Visual-Ass-2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Visual-Ass-2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		42CFA4891AB4E35F001D3A41 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		42CFA4961AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.9.dylib; path = ../../../../../../usr/local/lib/libopencv_core.2.4.9.dylib; sourceTree = "<group>"; };
@@ -101,6 +127,19 @@
 		42CFA47D1AB4E35F001D3A41 = {
 			isa = PBXGroup;
 			children = (
+				429D43871AB7AFEC00CB401E /* alglibinternal.cpp */,
+				429D43881AB7AFEC00CB401E /* alglibmisc.cpp */,
+				429D43891AB7AFEC00CB401E /* ap.cpp */,
+				429D438A1AB7AFEC00CB401E /* dataanalysis.cpp */,
+				429D438B1AB7AFEC00CB401E /* diffequations.cpp */,
+				429D438C1AB7AFEC00CB401E /* fasttransforms.cpp */,
+				429D438D1AB7AFEC00CB401E /* integration.cpp */,
+				429D438E1AB7AFEC00CB401E /* interpolation.cpp */,
+				429D438F1AB7AFEC00CB401E /* linalg.cpp */,
+				429D43901AB7AFEC00CB401E /* optimization.cpp */,
+				429D43911AB7AFEC00CB401E /* solvers.cpp */,
+				429D43921AB7AFEC00CB401E /* specialfunctions.cpp */,
+				429D43931AB7AFEC00CB401E /* statistics.cpp */,
 				42CFA4961AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */,
 				42CFA4971AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */,
 				42CFA4981AB523D8001D3A41 /* libopencv_core.2.4.9.dylib */,
@@ -198,7 +237,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429D43A01AB7AFEC00CB401E /* statistics.cpp in Sources */,
+				429D439F1AB7AFEC00CB401E /* specialfunctions.cpp in Sources */,
+				429D439C1AB7AFEC00CB401E /* linalg.cpp in Sources */,
+				429D43961AB7AFEC00CB401E /* ap.cpp in Sources */,
+				429D43971AB7AFEC00CB401E /* dataanalysis.cpp in Sources */,
+				429D43991AB7AFEC00CB401E /* fasttransforms.cpp in Sources */,
 				42CFA48A1AB4E35F001D3A41 /* main.cpp in Sources */,
+				429D439A1AB7AFEC00CB401E /* integration.cpp in Sources */,
+				429D43951AB7AFEC00CB401E /* alglibmisc.cpp in Sources */,
+				429D43981AB7AFEC00CB401E /* diffequations.cpp in Sources */,
+				429D439B1AB7AFEC00CB401E /* interpolation.cpp in Sources */,
+				429D439D1AB7AFEC00CB401E /* optimization.cpp in Sources */,
+				429D439E1AB7AFEC00CB401E /* solvers.cpp in Sources */,
+				429D43941AB7AFEC00CB401E /* alglibinternal.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,12 +338,9 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/usr/local/include,
-					"/Documents/workspace/Visual-Ass-1/Visual-Ass-2",
+					/usr/local/include/alglib,
 				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"/Documents/workspace/Visual-Ass-1/Visual-Ass-2",
-				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -303,12 +352,9 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/usr/local/include,
-					"/Documents/workspace/Visual-Ass-1/Visual-Ass-2",
+					/usr/local/include/alglib,
 				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"/Documents/workspace/Visual-Ass-1/Visual-Ass-2",
-				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
