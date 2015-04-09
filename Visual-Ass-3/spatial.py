@@ -26,24 +26,23 @@ def step2(image):
 	rel = [[{} for i in range(len(MBR_list))] for j in range(len(MBR_list))]
 	for i in xrange(len(MBR_list)):
 		for j in xrange(len(MBR_list)):
-			if i != j:
-				rel[i][j]['north'] = North(i+1, j+1)
-				rel[i][j]['south'] = South(i+1, j+1)
-				rel[i][j]['east'] = East(i+1, j+1)
-				rel[i][j]['west'] = West(i+1, j+1)
-				rel[i][j]['near'] = Near(i+1, j+1)
+			rel[i][j]['north'] = North(i+1, j+1)
+			rel[i][j]['south'] = South(i+1, j+1)
+			rel[i][j]['east'] = East(i+1, j+1)
+			rel[i][j]['west'] = West(i+1, j+1)
+			rel[i][j]['near'] = Near(i+1, j+1)
     # transitive reduction 
     # to do: near?
 	for i in xrange(len(MBR_list)):
-		for j in xrange(len(MBR_list)):
-			try:
-				if rel[i][j]['north']:
-					rel[j][i]['south'] = False
-				if rel[i][j]['east']:
-					rel[j][i]['west'] = False
-			except KeyError:
-				pass
-					
+			for j in xrange(len(MBR_list)):
+				try:
+					if rel[i][j]['north']:
+						rel[j][i]['south'] = False
+					if rel[i][j]['east']:
+						rel[j][i]['west'] = False
+				except KeyError:
+					pass	
+
 	for i in xrange(len(MBR_list)):
 		for j in xrange(len(MBR_list)):
 			try:
@@ -51,13 +50,12 @@ def step2(image):
 				# 	rel[j][i]['south'] = False
 				# if rel[i][j]['east']:
 				# 	rel[j][i]['west'] = False
+
 				if rel[i][j]['north']:
-					print i,j
 					for k in xrange(len(MBR_list)):
-						# if i==0 and j==25:
-						# 	print rel[j][i]['north']
-						# 	print rel[13][i]['north']
-						# 	print rel[j][13]['north']
+						# print i,j,k, rel[k][j]['north'] , rel[i][k]['north']
+						# if i==26 and j==0:
+						# 	print rel[k][j]['north'] , rel[i][k]['north']
 						if rel[k][j]['north'] and rel[i][k]['north']:
 							rel[i][j]['north'] = False
 							break
@@ -79,8 +77,6 @@ def step2(image):
 			except KeyError:
 				pass
 
-
-
 	c=0
 	for i in xrange(27):
 		for j in xrange(27):
@@ -93,6 +89,7 @@ def step2(image):
 				pass
 	print c
 	# printable(rel,labels)
+	print East(1,18)
 	return rel,MBR_list,COM_list,labels
 
 
@@ -193,7 +190,7 @@ def Near(S, T):
 		xt = T[0]
 		yt = T[1]
 
-	if abs(xs - xt) < height / 4 and abs(ys - yt) < width / 3 :
+	if abs(xs - xt) < height / 4 and abs(ys - yt) < width / 3 and S != T:
 		return True
 	else:
 		return False
