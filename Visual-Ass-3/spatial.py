@@ -8,6 +8,7 @@ def main():
 	image = cv2.imread(filename,-1)
 	step2(image)
 
+
 	# cv2.imshow('image',img)
 	# cv2.waitKey(0)
 	# cv2.destroyAllWindows()
@@ -20,45 +21,80 @@ def step2(image):
 	MBR_list, COM_list, labels = step1(image)
 	height = image.shape[0]
 	width = image.shape[1]
+
     # Generate all binary spatial relationships for every pair
 	rel = [[{} for i in range(len(MBR_list))] for j in range(len(MBR_list))]
 	for i in xrange(len(MBR_list)):
 		for j in xrange(len(MBR_list)):
 			if i != j:
-				rel[i][j]['north'] = North(i, j)
-				rel[i][j]['south'] = South(i, j)
-				rel[i][j]['east'] = East(i, j)
-				rel[i][j]['west'] = West(i, j)
-				rel[i][j]['near'] = Near(i, j)
+				rel[i][j]['north'] = North(i+1, j+1)
+				rel[i][j]['south'] = South(i+1, j+1)
+				rel[i][j]['east'] = East(i+1, j+1)
+				rel[i][j]['west'] = West(i+1, j+1)
+				rel[i][j]['near'] = Near(i+1, j+1)
     # transitive reduction 
-    # to do: near
+    # to do: near?
 	for i in xrange(len(MBR_list)):
 		for j in xrange(len(MBR_list)):
 			try:
-				if rel[i][j]['north'] and rel[j][i]['south']:
+				if rel[i][j]['north']:
 					rel[j][i]['south'] = False
-				if rel[i][j]['west'] and rel[j][i]['east']:
-					rel[j][i]['east'] = False
-				if rel[i][j]['north'] is True:
+				if rel[i][j]['east']:
+					rel[j][i]['west'] = False
+			except KeyError:
+				pass
+					
+	for i in xrange(len(MBR_list)):
+		for j in xrange(len(MBR_list)):
+			try:
+				# if rel[i][j]['north']:
+				# 	rel[j][i]['south'] = False
+				# if rel[i][j]['east']:
+				# 	rel[j][i]['west'] = False
+				if rel[i][j]['north']:
+					print i,j
 					for k in xrange(len(MBR_list)):
+						# if i==0 and j==25:
+						# 	print rel[j][i]['north']
+						# 	print rel[13][i]['north']
+						# 	print rel[j][13]['north']
 						if rel[k][j]['north'] and rel[i][k]['north']:
 							rel[i][j]['north'] = False
-				if rel[i][j]['south'] is True:
+							break
+				if rel[i][j]['south']:
 					for k in xrange(len(MBR_list)):
 						if rel[k][j]['south'] and rel[i][k]['south']:
 							rel[i][j]['south'] = False
-				if rel[i][j]['east'] is True:
+							break
+				if rel[i][j]['east']:
 					for k in xrange(len(MBR_list)):
 						if rel[k][j]['east'] and rel[i][k]['east']:
 							rel[i][j]['east'] = False
-				if rel[i][j]['west'] is True:
+							break
+				if rel[i][j]['west']:
 					for k in xrange(len(MBR_list)):
 						if rel[k][j]['west'] and rel[i][k]['west']:
 							rel[i][j]['west'] = False	
+							break
 			except KeyError:
 				pass
 
-	printable(rel,labels)
+
+
+	c=0
+	for i in xrange(27):
+		for j in xrange(27):
+			try:
+				for (k, v) in rel[i][j].iteritems():
+					if v:
+						c = c + 1
+
+			except KeyError:
+				pass
+	print c
+	# printable(rel,labels)
+	return rel,MBR_list,COM_list,labels
+
 
 def printable(rel,labels):
 	for index in xrange(len(rel)):
@@ -74,6 +110,8 @@ def printable(rel,labels):
    					print 'East of %s is %s , ' %(labels[str(index+1)].replace('\r\n',''),labels[str(j+1)].replace('\r\n','')),
    				if rel[index][j]['west']:
    					print 'West of %s is %s , ' %(labels[str(index+1)].replace('\r\n',''),labels[str(j+1)].replace('\r\n','')),
+   				if rel[index][j]['near']:
+   					print 'Near %s is %s , ' %(labels[str(index+1)].replace('\r\n',''),labels[str(j+1)].replace('\r\n','')),
    			except KeyError:
    				pass
    		print "\n"
@@ -81,11 +119,11 @@ def printable(rel,labels):
 def North(S, T):
 	# return true if S is north of T
 	if type(S) is int:
-		xs = MBR_list[S-1][0][1][0]
+		xs = MBR_list[S-1][0][0][0]
 	else:
 		xs = S[0]
 	if type(T) is int:
-		xt = MBR_list[T-1][0][0][0]
+		xt = MBR_list[T-1][0][1][0]
 	else:
 		xt = T[0]
 	if xs < xt:
@@ -96,11 +134,11 @@ def North(S, T):
 def South(S, T):
 	# return true if S is South of T
 	if type(S) is int:
-		xs = MBR_list[S-1][0][0][0]
+		xs = MBR_list[S-1][0][1][0]
 	else:
 		xs = S[0]
 	if type(T) is int:
-		xt = MBR_list[T-1][0][1][0]
+		xt = MBR_list[T-1][0][0][0]
 	else:
 		xt = T[0]
 	if xs > xt:
@@ -108,15 +146,14 @@ def South(S, T):
 	else:
 		return True	
 
-
 def East(S, T):
 	# return true if S is east of T
 	if type(S) is int:
-		xs = MBR_list[S-1][0][0][1]
+		xs = MBR_list[S-1][0][1][1]
 	else:
 		xs = S[0]
 	if type(T) is int:
-		xt = MBR_list[T-1][0][1][1]
+		xt = MBR_list[T-1][0][0][1]
 	else:
 		xt = T[0]
 	if xs > xt:
@@ -127,11 +164,11 @@ def East(S, T):
 def West(S, T):
 	# return true if S is west of T
 	if type(S) is int:
-		xs = MBR_list[S-1][0][1][1]
+		xs = MBR_list[S-1][0][0][1]
 	else:
 		xs = S[0]
 	if type(T) is int:
-		xt = MBR_list[T-1][0][0][1]
+		xt = MBR_list[T-1][0][1][1]
 	else:
 		xt = T[0]
 	if xs < xt:
@@ -141,6 +178,8 @@ def West(S, T):
 
 def Near(S, T):
 	# return true if S is near T
+	# Todo, add size to be more accurate
+	# small size get stricter threshold while larger size get lower 
 	if type(S) is int:
 		xs = COM_list[S-1][0][0]
 		ys = COM_list[S-1][0][1]

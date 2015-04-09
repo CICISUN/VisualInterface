@@ -1,0 +1,162 @@
+Building 1: Pupin
+Center of Mass: (14.976220, 76.153049)
+Area: 1640
+Minimum Bounding Rectangle: (3,39) to (27,115)
+Description: Smallsized, Rectangular, Symmetric
+
+Building 2: Schapiro CEPSR
+Center of Mass: (20.000000, 143.000000)
+Area: 1435
+Minimum Bounding Rectangle: (3,123) to (37,163)
+Description: Smallsized, Squarish, Symmetric
+
+Building 3: Mudd, Engineering Terrace, Fairchild & Computer Science
+Center of Mass: (35.279540, 223.241811)
+Area: 5831
+Minimum Bounding Rectangle: (3,166) to (86,272)
+Description: Largesized, Squarish, Symmetric, Northernmost, Northern-easternmost
+
+Building 4: Physical Fitness Center
+Center of Mass: (58.275522, 59.134873)
+Area: 5368
+Minimum Bounding Rectangle: (34,3) to (90,115)
+Description: Largesized, Rectangular, Symmetric, Northern-westernmost
+
+Building 5: Gymnasium & Uris
+Center of Mass: (99.465322, 142.525639)
+Area: 5753
+Minimum Bounding Rectangle: (48,110) to (147,175)
+Description: Largesized, Squarish, North-to-south oriented
+
+Building 6: Schermerhorn
+Center of Mass: (120.510100, 233.446945)
+Area: 3911
+Minimum Bounding Rectangle: (77,181) to (147,273)
+Description: Averagesized, Squarish, Symmetric
+
+Building 7: Chandler & Havemeyer
+Center of Mass: (119.542485, 37.530861)
+Area: 3613
+Minimum Bounding Rectangle: (81,3) to (147,80)
+Description: Averagesized, L-shaped, Symmetric
+
+Building 8: Computer Center
+Center of Mass: (136.000000, 96.500000)
+Area: 322
+Minimum Bounding Rectangle: (125,90) to (147,103)
+Description: Smallsized, L-shaped, North-to-south oriented, Thinest
+
+Building 9: Avery
+Center of Mass: (175.981959, 204.048969)
+Area: 1164
+Minimum Bounding Rectangle: (151,191) to (201,215)
+Description: Smallsized, Rectangular, North-to-south oriented
+
+Building 10: Fayerweather
+Center of Mass: (176.000000, 259.615059)
+Area: 1182
+Minimum Bounding Rectangle: (151,247) to (201,272)
+Description: Smallsized, Rectangular, North-to-south oriented
+
+Building 11: Mathematics
+Center of Mass: (182.000000, 17.000000)
+Area: 1191
+Minimum Bounding Rectangle: (158,3) to (206,31)
+Description: Smallsized, Squarish, North-to-south oriented
+
+Building 12: Low Library
+Center of Mass: (221.500000, 135.000000)
+Area: 3898
+Minimum Bounding Rectangle: (187,101) to (256,169)
+Description: Averagesized, Squarish, Symmetric
+
+Building 13: St. Paul's Chapel
+Center of Mass: (222.021159, 226.553818)
+Area: 1087
+Minimum Bounding Rectangle: (210,201) to (234,251)
+Description: Smallsized, Rectangular, Symmetric
+
+Building 14: Earl Hall
+Center of Mass: (221.862978, 49.599473)
+Area: 759
+Minimum Bounding Rectangle: (211,31) to (233,68)
+Description: Smallsized, Squarish, Symmetric
+
+Building 15: Lewisohn
+Center of Mass: (259.000000, 17.000000)
+Area: 1307
+Minimum Bounding Rectangle: (233,3) to (285,31)
+Description: Smallsized, Squarish, North-to-south oriented
+
+Building 16: Philosophy
+Center of Mass: (263.000000, 258.335484)
+Area: 1085
+Minimum Bounding Rectangle: (240,245) to (286,272)
+Description: Smallsized, Squarish, North-to-south oriented
+
+Building 17: Buell & Maison Francaise
+Center of Mass: (253.500000, 208.000000)
+Area: 340
+Minimum Bounding Rectangle: (246,196) to (261,220)
+Description: Smallsized, Squarish, Symmetric
+
+Building 18: Alma Mater
+Center of Mass: (276.000000, 136.000000)
+Area: 225
+Minimum Bounding Rectangle: (269,129) to (283,143)
+Description: Smallsized, Squarish, Symmetric, Smallest
+
+Building 19: Dodge
+Center of Mass: (301.090566, 41.500000)
+Area: 1590
+Minimum Bounding Rectangle: (289,3) to (311,80)
+Description: Smallsized, Rectangular, Symmetric
+
+Building 20: Kent
+Center of Mass: (300.900000, 233.000000)
+Area: 1470
+Minimum Bounding Rectangle: (290,194) to (310,272)
+Description: Smallsized, L-shaped, Symmetric
+
+Building 21: College Walk
+Center of Mass: (322.500000, 137.000000)
+Area: 4950
+Minimum Bounding Rectangle: (314,0) to (331,274)
+Description: Largesized, Rectangular, Symmetric, Longest, Easternmost, Westernmost
+
+Building 22: Journalism & Furnald
+Center of Mass: (363.944168, 30.586998)
+Area: 2615
+Minimum Bounding Rectangle: (338,4) to (414,81)
+Description: Averagesized, Squarish, Symmetric
+
+Building 23: Hamilton, Hartley, Wallach & John Jay
+Center of Mass: (416.947225, 240.338856)
+Area: 5855
+Minimum Bounding Rectangle: (338,191) to (490,270)
+Description: Largesized, L-shaped, North-to-south oriented, Largest
+
+Building 24: Lion's Court
+Center of Mass: (421.500000, 204.000000)
+Area: 920
+Minimum Bounding Rectangle: (402,193) to (441,215)
+Description: Smallsized, Squarish, North-to-south oriented
+
+Building 25: Lerner Hall
+Center of Mass: (441.500000, 38.500000)
+Area: 2240
+Minimum Bounding Rectangle: (426,4) to (457,73)
+Description: Averagesized, Rectangular, Symmetric
+
+Building 26: Butler Library
+Center of Mass: (460.414616, 132.000000)
+Area: 5282
+Minimum Bounding Rectangle: (431,85) to (490,179)
+Description: Largesized, Squarish, Symmetric
+
+Building 27: Carman
+Center of Mass: (474.500000, 38.500000)
+Area: 2240
+Minimum Bounding Rectangle: (459,4) to (490,73)
+Description: Averagesized, Rectangular, Symmetric, Southernmost, Southern-easternmost, Southern-westernmost
+

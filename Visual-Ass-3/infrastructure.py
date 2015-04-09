@@ -1,10 +1,12 @@
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
+import codecs
 
 def main():
 	filename = 'ass3-labeled.pgm'
 	img = cv2.imread(filename,-1)
-	MBR_list, COM_list = step1(img, labels)
+	MBR_list, COM_list, labels = step1(img)
 
 def step1(image):
 	area_list = []
@@ -30,24 +32,25 @@ def step1(image):
 	check_orientation(image, MBR_list, dsc)
 	ranked = sorted(area_list, key=lambda x: float(x[0]), reverse=True)
 	check_extremum(image, ranked, MBR_list, dsc)
- 	# printable(dsc, labels, area_list, MBR_list, COM_list)
+ 	printable(dsc, labels, area_list, MBR_list, COM_list)
  	return MBR_list, COM_list, labels
 	
 def printable(dsc, labels, area_list, MBR_list, COM_list):
+	outfile = codecs.open('part1_output.txt', encoding = 'utf-8', mode = 'w')
 	for index in xrange(len(dsc)):
-   		print "Building #%d: %s" %(index+1,labels[str(index+1)].replace('\r\n',''))
-   		print "Center of Mass: (%f, %f)" %(COM_list[index][0][0],COM_list[index][0][1])
-  		print "Area: ", area_list[index][0]
-   		print "Minimum Bounding Rectangle: (%d,%d) to (%d,%d)" %(MBR_list[index][0][0][0],MBR_list[index][0][0][1],MBR_list[index][0][1][0],MBR_list[index][0][1][1])
-   		print "Description: ", dsc[index]["size"], 'sized', 
+   		outfile.write("Building %d: %s" %(index+1,labels[str(index+1)].replace('\r\n','')))
+   		outfile.write("\nCenter of Mass: (%f, %f)" %(COM_list[index][0][0],COM_list[index][0][1]))
+  		outfile.write("\nArea: " + str(area_list[index][0]))
+   		outfile.write("\nMinimum Bounding Rectangle: (%d,%d) to (%d,%d)" %(MBR_list[index][0][0][0],MBR_list[index][0][0][1],MBR_list[index][0][1][0],MBR_list[index][0][1][1]))
+   		outfile.write("\nDescription: " + dsc[index]["size"] + 'sized')
    		if dsc[index]["shape"] is not 'Empty':
-   			print ',', dsc[index]["shape"],
+   			outfile.write(', ' + dsc[index]["shape"])
    		if dsc[index]["orientation"] is not 'Empty':
-   			print ',', dsc[index]["orientation"],
+   			outfile.write(', ' + dsc[index]["orientation"])
    		if len(dsc[index]["extremum"]) is not 0:
    			for item in dsc[index]["extremum"]:
-   				print ',', item ,
-   		print "\n"
+   				outfile.write(', ' + item)
+   		outfile.write("\r\n\n")
 
 
 
@@ -75,8 +78,28 @@ def check_size(image, area_list, dsc):
 
 def check_shape(image, MBR_list, dsc):
 	for index in xrange(len(dsc)):
-		dsc[index]["shape"] = 'Empty'
-
+		lower_blue = np.array([index])
+		upper_blue = np.array([index])
+		img_tmp = cv2.inRange(image, lower_blue, upper_blue)
+		thresh = cv2.Canny(img_tmp,100,200)
+		contours, hierarchy = cv2.findContours(thresh,1,2)
+		cv2.drawContours(img_tmp,contours,-1,(128,255,0),3)
+		cnt = contours[0]
+		epsilon = 0.1*cv2.arcLength(cnt,True)
+		approx = cv2.approxPolyDP(cnt,epsilon,True)
+		cv2.drawContours(img_tmp,approx,-1,(255,0,0),5)
+		if len(approx) == 3:
+			dsc[index]["shape"] = 'L-shaped'
+		else:
+			height = abs(MBR_list[index][0][1][0] - MBR_list[index][0][0][0])
+			width = abs(MBR_list[index][0][1][1] - MBR_list[index][0][0][1])
+			# if round(float(width / height)) == 1.0 and round(float(height / width)):
+			if float(width / height) >= 1/1.5 and float(width / height) <= 1.5 or float(height / width) >= 1/1.5 and float(height / width) <= 1.5:
+				dsc[index]["shape"] = 'Squarish'
+			else:
+				dsc[index]["shape"] = 'Rectangular'
+		# cv2.imshow('result',img_tmp)
+		# cv2.waitKey(0)
 
 
 def check_orientation(image, MBR_list, dsc):
@@ -118,6 +141,7 @@ def check_extremum(image, ranked, MBR_list, dsc):
 			longest_index = index
 			longest = max(width,height)
 		# most  NE, NW, SE, SW,
+		# Todo :change to distance between COM and four vertices, more accurate
 		if MBR_list[index][0][0][0] + image.shape[1] - MBR_list[index][0][1][1] < minne:
 			minne = MBR_list[index][0][0][0] + image.shape[1] - MBR_list[index][0][1][1]
 			ne_index = index
