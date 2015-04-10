@@ -33,15 +33,15 @@ def step2(image):
 			rel[i][j]['near'] = Near(i+1, j+1)
     # transitive reduction 
     # to do: near?
-	for i in xrange(len(MBR_list)):
-			for j in xrange(len(MBR_list)):
-				try:
-					if rel[i][j]['north']:
-						rel[j][i]['south'] = False
-					if rel[i][j]['east']:
-						rel[j][i]['west'] = False
-				except KeyError:
-					pass	
+	# for i in xrange(len(MBR_list)):
+	# 		for j in xrange(len(MBR_list)):
+	# 			try:
+	# 				if rel[i][j]['north']:
+	# 					rel[j][i]['south'] = False
+	# 				if rel[i][j]['east']:
+	# 					rel[j][i]['west'] = False
+	# 			except KeyError:
+	# 				pass	
 
 	for i in xrange(len(MBR_list)):
 		for j in xrange(len(MBR_list)):
@@ -74,8 +74,14 @@ def step2(image):
 						if rel[k][j]['west'] and rel[i][k]['west']:
 							rel[i][j]['west'] = False	
 							break
+				if rel[i][j]['near']:
+					for k in xrange(len(MBR_list)):
+						if rel[k][j]['near'] and rel[i][k]['near']:
+							rel[i][j]['near'] = False	
+							break
 			except KeyError:
 				pass
+
 
 	c=0
 	for i in xrange(27):
@@ -89,7 +95,7 @@ def step2(image):
 				pass
 	print c
 	# printable(rel,labels)
-	print East(1,18)
+	print South(1,1)
 	return rel,MBR_list,COM_list,labels
 
 

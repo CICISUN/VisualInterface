@@ -47,9 +47,10 @@ def find_pc_dfs(x,y,pc,mark,oldrel):
 
 	return pc
 
-def get_des(c, x, y):
+def get_des(x, y):
 	# print out description for point/building
-	if c == 0:
+	global count
+	if count == 0:
 		print 'Loading point cloud for starting point'
 	else:
 		print 'Loading point cloud for target point'
@@ -58,34 +59,120 @@ def get_des(c, x, y):
 		bnum = image0[y][x]
 	except IndexError:
 		print 'Click again!'
-	if bnum != 0:
-		for i in xrange(27):
-			if i !=bnum:
-				# print rel[i][bnum]
-				print 'got it'
-	return 'ok'
 
-# def onObjectClick(event):
-# 	print 'Got obj click', event.x, event.y, event.widget
+	if bnum==0:
+		return 0
+
+	if bnum != 0:
+		bnum = bnum - 1
+		for i in xrange(27):
+			for k,v in rel[i][bnum].iteritems():
+				if v:
+					print k, ' of ', labels[str(i+1)] ,
+	return bnum
+
+def calc_adj(rel):
+	res = {}
+	for i in xrange(len(rel)):
+		tmp_v=[]
+		for j in xrange(len(rel)):
+			if rel[i][j]['east'] or rel[i][j]['west'] or rel[i][j]['north'] or rel[i][j]['south'] and rel[i][j]['near'] \
+			or rel[j][i]['east'] or rel[j][i]['west'] or rel[j][i]['north'] or rel[j][i]['south'] and rel[j][i]['near']:
+				tmp_v.append(j)
+		res[i] = set(tmp_v)
+	print res
+
+	return res
+
+
+def find_nearest(type):
+	mindis = 100000000000
+	nnum = 0
+	for bnum in COM_list:
+		if type==1:
+			tmp = (bnum[0][0]-coor[0][1])**2 + (bnum[0][1]-coor[0][0])**2
+		elif type==2:
+			tmp = (bnum[0][0]-coor[1][1])**2 + (bnum[0][1]-coor[1][0])**2
+		if tmp < mindis:
+			mindis=tmp
+			nnum=bnum[1]
+	return nnum
+
+def reset_callback():
+	global coor
+	global image
+	del coor[:]
+	image = Image.open("campus.ppm")
+	img = ImageTk.PhotoImage(image)
+	obj_img = Tkinter.Label(w, image=img)
+	obj_img.place(x=0, y=0, width=image.size[0], height=image.size[1])
+	w.mainloop()
+
+# http://eddmann.com/posts/depth-first-search-and-breadth-first-search-in-python/
+def find_path_bfs(start, end):
+	global adj
+	queue = [(start, [start])]
+	while queue:
+		(vertex, path) = queue.pop(0)
+		for next in adj[vertex] - set(path):
+			if next == end:
+				yield path + [next]
+			else:
+				queue.append((next, path + [next]))
+
+def shortest_path(start, end):
+	try:
+		return next(find_path_bfs(start, end))
+	except StopIteration:
+		return None
+
+def btn_callback():
+	bnum = find_nearest(1)
+	print 'You are nearest to', labels[str(bnum)].replace('\r\n','')
+	start = bnum-1
+	tnum = find_nearest(2)
+	print 'You are going to', labels[str(tnum)].replace('\r\n','')
+	end = tnum-1
+	path =  shortest_path(start, end)
+	print path
+	if image0[coor[0][1]][coor[0][0]] != 0:
+		start_from_b = True
+	if image0[coor[1][1]][coor[1][0]] != 0:
+		end_in_b = True
+
+	printable(path, start_from_b, end_in_b)
+
+def printable(path, start_from_b, end_in_b):
+	global rel
+	if start_from_b:
+		start = path.pop(0)
+	print 'Go ',
+	for bnum in path:
+		for k,v in rel[start][bnum].iteritems():
+			if v:
+				print k, ' and '
+
 
 
 def onCanvasClick(event):
-	print 'Got canvas click', event.x, event.y, event.widget
+	print 'Got click', event.x, event.y, event.widget
 	global count
 	global image
 	coor.append((event.x,event.y))
-	if count == 0:
+
+	if count > 1:
+		count = 0
+		color = (255,0,0)
+		print 'please reset!'
+	elif count == 1:
+		txt = get_des(event.x,event.y)
+		color = (255,0,0)	
+		count = count + 1
+	elif count == 0:
+		txt = get_des(event.x,event.y)
 		color = (0,255,0)
 		count = count + 1
-		txt = get_des(count,event.x,event.y)
-	elif count == 1:
-		count = count + 1
-		color = (255,0,0)
-		txt = get_des(count,event.x,event.y)
-	else:
-		count = 0
-		txt = 'please reset!'
-	
+
 	cur_rel = np.zeros((27, 3), bool)
 	x = round(event.x)
 	y = round(event.y)
@@ -93,7 +180,7 @@ def onCanvasClick(event):
 	for i in range(27):
 		cur_rel[i] = [North(i, [x, y]), East(i, [x, y]), Near(i, [x, y])]
 	
-	sys.setrecursionlimit(100000)
+	sys.setrecursionlimit(10000)
 	point_cloud = find_pc_dfs(x,y,[(x,y)],[(x,y)],cur_rel)
 	# change display
 	for pix in point_cloud:
@@ -101,10 +188,8 @@ def onCanvasClick(event):
 		xx = int(pix[0]) 
 		yy = int(pix[1])
 		tmp =  tuple(map(int, [xx,yy]))
-		try:
-			image.putpixel(tmp, color)
-		except UnboundLocalError:
-			print 'please reset!'
+		image.putpixel(tmp, color)
+	
 
 	img = ImageTk.PhotoImage(image)
 	obj_img = Tkinter.Label(w, image=img)
@@ -124,6 +209,7 @@ def step3():
 	global labels
 	global count
 	global image
+	global adj
 	global w
 	count = 0
 	coor = []
@@ -131,6 +217,8 @@ def step3():
 	image0 = cv2.imread(filename,-1)
 	
 	rel,MBR_list,COM_list,labels = step2(image0)
+	adj = calc_adj(rel)
+
 
 	w = Tk()
 	image = Image.open("campus.ppm")
@@ -141,14 +229,17 @@ def step3():
 	img = ImageTk.PhotoImage(image)
 	obj_img = Tkinter.Label(w, image=img)
 	obj_img.place(x=0, y=0, width=image.size[0], height=image.size[1])
+	# obj_img.grid(row=0, column=0)
+	btn = Tkinter.Button(w,text='Tell me!',command = btn_callback)
+	reset = Tkinter.Button(w,text='Reset!',command = reset_callback)
+	# btn.grid(row=0, column=1)
+	btn.place(x=image.size[0]+50, y=image.size[1]-50)
+	reset.place(x=image.size[0]+150, y=image.size[1]-50)
 	# obj_img = canvas.create_image(0,0, anchor=NW, image=img)
 	# obj_text = canvas.create_text(image.size[0]+3, 10, anchor=W, font="Purisa", text="Welcome to CU Map")
 
 	w.bind('<Double-1>', onCanvasClick)
 	# canvas.tag_bind(obj_img, '<Double-1>', onObjectClick)
-
-
-
 	# canvas.pack()
 	w.mainloop()
 
