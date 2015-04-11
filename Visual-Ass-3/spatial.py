@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from infrastructure import step1
- 
+import math
 
 def main():
 	filename='ass3-labeled.pgm'
@@ -18,7 +18,8 @@ def step2(image):
 	global COM_list
 	global height 
 	global width
-	MBR_list, COM_list, labels = step1(image)
+	global area_list
+	MBR_list, COM_list, area_list,labels,dsc = step1(image)
 	height = image.shape[0]
 	width = image.shape[1]
 
@@ -74,11 +75,11 @@ def step2(image):
 						if rel[k][j]['west'] and rel[i][k]['west']:
 							rel[i][j]['west'] = False	
 							break
-				if rel[i][j]['near']:
-					for k in xrange(len(MBR_list)):
-						if rel[k][j]['near'] and rel[i][k]['near']:
-							rel[i][j]['near'] = False	
-							break
+				# if rel[i][j]['near']:
+				# 	for k in xrange(len(MBR_list)):
+				# 		if rel[k][j]['near'] and rel[i][k]['near']:
+				# 			rel[i][j]['near'] = False	
+				# 			break
 			except KeyError:
 				pass
 
@@ -95,8 +96,8 @@ def step2(image):
 				pass
 	print c
 	# printable(rel,labels)
-	print South(1,1)
-	return rel,MBR_list,COM_list,labels
+	# print 'here ======',area_list[0],area_list[3], Near(1,4), Near(2,5), Near(4,7), Near(1,2), Near(2,3), Near(3,6), Near(1,6)
+	return rel,MBR_list,COM_list,labels, dsc
 
 
 def printable(rel,labels):
@@ -186,17 +187,30 @@ def Near(S, T):
 	if type(S) is int:
 		xs = COM_list[S-1][0][0]
 		ys = COM_list[S-1][0][1]
+		size_s = area_list[S-1]
 	else:
 		xs = S[0]
 		ys = S[1]
+		size_s = 0
 	if type(T) is int:
 		xt = COM_list[T-1][0][0]
 		yt = COM_list[T-1][0][1]
+		size_t = area_list[T-1]
 	else:
 		xt = T[0]
 		yt = T[1]
+		size_t = 0
 
-	if abs(xs - xt) < height / 4 and abs(ys - yt) < width / 3 and S != T:
+	dis = math.sqrt((xs-xt)**2 + (ys-yt)**2)
+ 
+	if size_s>4000 or size_t>4000:
+		thresh = 120
+	elif size_s>2000 or size_t>2000:
+		thresh = 80
+	else:
+		thresh=50
+
+	if dis<thresh and S != T:
 		return True
 	else:
 		return False

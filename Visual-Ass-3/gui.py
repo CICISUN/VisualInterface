@@ -6,7 +6,7 @@ from Tkinter import *
 from PIL import Image, ImageTk
 from ttk import Frame, Style
 from spatial import East,North,Near,step2
-
+from infrastructure import step1
  
 def find_pc_dfs(x,y,pc,mark,oldrel):
 	# implement floodfill algorithm
@@ -49,11 +49,11 @@ def find_pc_dfs(x,y,pc,mark,oldrel):
 
 def get_des(x, y):
 	# print out description for point/building
-	global count
-	if count == 0:
-		print 'Loading point cloud for starting point'
+ 
+	if color ==(0,255,0):
+		txt = 'Loading point cloud for starting point\n'
 	else:
-		print 'Loading point cloud for target point'
+		txt = 'Loading point cloud for target point\n'
 	bnum=0
 	try:
 		bnum = image0[y][x]
@@ -61,26 +61,35 @@ def get_des(x, y):
 		print 'Click again!'
 
 	if bnum==0:
-		return 0
+		for i in range(27):
+			if Near(i, [x, y]):
+				txt = txt + 'Near ' + labels[str(i+1)].replace('\r\n','') + '\n'
+			if Near(i, [x, y]) and East(i, [x, y]):
+				txt = txt + 'East of ' + labels[str(i+1)].replace('\r\n','') + '\n'
+			if Near(i, [x, y]) and North(i, [x, y]):
+				txt = txt + 'North of ' + labels[str(i+1)].replace('\r\n','') + '\n'
 
 	if bnum != 0:
 		bnum = bnum - 1
 		for i in xrange(27):
 			for k,v in rel[i][bnum].iteritems():
 				if v:
-					print k, ' of ', labels[str(i+1)] ,
-	return bnum
+					if k == 'near':
+						txt = txt+ str(k) + ' ' + labels[str(i+1)].replace('\r\n','') + '\n'
+					else:
+						txt = txt+ str(k) + ' of ' + labels[str(i+1)].replace('\r\n','') + '\n'
+				
+	return txt
 
 def calc_adj(rel):
 	res = {}
 	for i in xrange(len(rel)):
 		tmp_v=[]
 		for j in xrange(len(rel)):
-			if rel[i][j]['east'] or rel[i][j]['west'] or rel[i][j]['north'] or rel[i][j]['south'] and rel[i][j]['near'] \
-			or rel[j][i]['east'] or rel[j][i]['west'] or rel[j][i]['north'] or rel[j][i]['south'] and rel[j][i]['near']:
+			if rel[i][j]['near'] and rel[j][i]['near'] and (rel[i][j]['east'] or rel[i][j]['west'] or rel[i][j]['north'] or rel[i][j]['south'] or rel[j][i]['east'] or rel[j][i]['west'] or rel[j][i]['north'] or rel[j][i]['south']):
 				tmp_v.append(j)
 		res[i] = set(tmp_v)
-	print res
+	# print res
 
 	return res
 
@@ -104,6 +113,8 @@ def reset_callback():
 	del coor[:]
 	image = Image.open("campus.ppm")
 	img = ImageTk.PhotoImage(image)
+	text = Text(w, height=image.size[1], width=image.size[0]+50)
+	text.place(x=image.size[0]+10, y=0, width=image.size[0]-15, height=image.size[1]-100)
 	obj_img = Tkinter.Label(w, image=img)
 	obj_img.place(x=0, y=0, width=image.size[0], height=image.size[1])
 	w.mainloop()
@@ -128,50 +139,83 @@ def shortest_path(start, end):
 
 def btn_callback():
 	bnum = find_nearest(1)
-	print 'You are nearest to', labels[str(bnum)].replace('\r\n','')
+	txt = 'You are nearest to ' + labels[str(bnum)].replace('\r\n','')
+
 	start = bnum-1
 	tnum = find_nearest(2)
-	print 'You are going to', labels[str(tnum)].replace('\r\n','')
+	txt = txt + '\n' + 'You are going to ' + labels[str(tnum)].replace('\r\n','')
 	end = tnum-1
 	path =  shortest_path(start, end)
-	print path
+
+	txt = txt + '\n' 
+
 	if image0[coor[0][1]][coor[0][0]] != 0:
 		start_from_b = True
+	else:
+		start_from_b = False
+
 	if image0[coor[1][1]][coor[1][0]] != 0:
 		end_in_b = True
+	else:
+		end_in_b = False
 
-	printable(path, start_from_b, end_in_b)
+	txt = txt +'\n'+ printable(path, start_from_b, end_in_b)
+
+	text = Text(w, height=image.size[1], width=image.size[0]+50)
+	text.place(x=image.size[0]+10, y=0, width=image.size[0]-15, height=image.size[1]-100)
+	text.insert(END, txt)
+	w.mainloop()
 
 def printable(path, start_from_b, end_in_b):
 	global rel
-	if start_from_b:
-		start = path.pop(0)
-	print 'Go ',
-	for bnum in path:
-		for k,v in rel[start][bnum].iteritems():
-			if v:
-				print k, ' and '
+	# print rel
+	# if start_from_b:
+	# 	start = path.pop(0)
+	txt = ''
+	for i in xrange(len(path)-1):
+		if i==0:
+			# txt = txt + 'Go to the building (' +str(labels[str(path[i+1]+1)].replace('\r\n',''))+') that is '
+			txt = txt + 'Go to the building that is '
+		else:
+			# txt = txt + 'Then go to the building (' +str(labels[str(path[i+1]+1)].replace('\r\n',''))+') that is '
+			txt = txt + 'Then go to the building that is '
 
+		for k,v in rel[path[i]][path[i+1]].iteritems():
+			if v:
+				if rel[path[i]][path[i+1]].keys().index(k) == len(rel[path[i]][path[i+1]])-1:
+					txt = txt + str(k) 
+				else:
+					txt = txt + str(k) + ' and '
+
+		txt = txt + '(which is '
+		for k,v in dsc[path[i+1]].iteritems():
+			if k=='size':
+				txt = txt + str(v) + ' sized, '
+			if k=='shape':
+				txt = txt + str(v) + ', '
+			if k=='orientation':
+				txt = txt + str(v) + ', '
+			if k=='extremum':
+				for e in v:
+					txt = txt + str(e) + ', '
+		txt = txt + ' )\n'
+
+	return txt
+
+def btns_callback():
+	global color
+	color = (0,255,0)
+	print 'Click on where you are now'
+def btnt_callback():
+	global color
+	color = (255,0,0)
+	print 'Click on where you are goint'	
 
 
 def onCanvasClick(event):
 	print 'Got click', event.x, event.y, event.widget
-	global count
 	global image
 	coor.append((event.x,event.y))
-
-	if count > 1:
-		count = 0
-		color = (255,0,0)
-		print 'please reset!'
-	elif count == 1:
-		txt = get_des(event.x,event.y)
-		color = (255,0,0)	
-		count = count + 1
-	elif count == 0:
-		txt = get_des(event.x,event.y)
-		color = (0,255,0)
-		count = count + 1
 
 	cur_rel = np.zeros((27, 3), bool)
 	x = round(event.x)
@@ -179,6 +223,12 @@ def onCanvasClick(event):
 
 	for i in range(27):
 		cur_rel[i] = [North(i, [x, y]), East(i, [x, y]), Near(i, [x, y])]
+
+	txt = get_des(x,y)
+	text = Text(w, height=image.size[1], width=image.size[0]+50)
+	text.insert(END, txt)
+	text.place(x=image.size[0]+10, y=0, width=image.size[0]-15, height=image.size[1]-100)
+
 	
 	sys.setrecursionlimit(10000)
 	point_cloud = find_pc_dfs(x,y,[(x,y)],[(x,y)],cur_rel)
@@ -189,8 +239,7 @@ def onCanvasClick(event):
 		yy = int(pix[1])
 		tmp =  tuple(map(int, [xx,yy]))
 		image.putpixel(tmp, color)
-	
-
+	 
 	img = ImageTk.PhotoImage(image)
 	obj_img = Tkinter.Label(w, image=img)
 	obj_img.place(x=0, y=0, width=image.size[0], height=image.size[1])
@@ -207,22 +256,27 @@ def step3():
 	global COM_list
 	global image0
 	global labels
-	global count
+	global color
 	global image
 	global adj
 	global w
+	global dsc
+
 	count = 0
 	coor = []
 	filename='ass3-labeled.pgm'
 	image0 = cv2.imread(filename,-1)
 	
-	rel,MBR_list,COM_list,labels = step2(image0)
+	rel,MBR_list,COM_list,labels, dsc = step2(image0)
+
+	 
+
 	adj = calc_adj(rel)
 
 
 	w = Tk()
 	image = Image.open("campus.ppm")
-	w.geometry('%dx%d' %(image.size[0] * 2,image.size[1]))
+	w.geometry('%dx%d' %(image.size[0] * 2 +50,image.size[1]))
 
 	# canvas = Canvas(w, width=image.size[0]*2, height=image.size[1])
 
@@ -232,9 +286,22 @@ def step3():
 	# obj_img.grid(row=0, column=0)
 	btn = Tkinter.Button(w,text='Tell me!',command = btn_callback)
 	reset = Tkinter.Button(w,text='Reset!',command = reset_callback)
+	btn_s = Tkinter.Button(w,text='Set start!',command = btns_callback)
+	btn_t = Tkinter.Button(w,text='Set target!',command = btnt_callback)
 	# btn.grid(row=0, column=1)
+	text = Text(w, height=image.size[1], width=image.size[0])
+	# scroll = Scrollbar(w, command=text.yview)
+
+	text.insert(END,'Welcome to CU Map!\n')
+	usage = 'usage: click choose a start Button and click on the map,\nclick choose a target Button and click on the map\nclick choose a tell me Button and see the results below\n'
+	text.insert(END, usage)
+	# text.pack(side=RIGHT)
+	# scroll.pack(side=RIGHT, fill=Y)
+	text.place(x=image.size[0]+10, y=0, width=image.size[0]-15, height=image.size[1]-100)
 	btn.place(x=image.size[0]+50, y=image.size[1]-50)
+	btn_s.place(x=image.size[0]+50, y=image.size[1]-100)
 	reset.place(x=image.size[0]+150, y=image.size[1]-50)
+	btn_t.place(x=image.size[0]+150, y=image.size[1]-100)
 	# obj_img = canvas.create_image(0,0, anchor=NW, image=img)
 	# obj_text = canvas.create_text(image.size[0]+3, 10, anchor=W, font="Purisa", text="Welcome to CU Map")
 

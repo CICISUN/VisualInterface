@@ -33,7 +33,7 @@ def step1(image):
 	ranked = sorted(area_list, key=lambda x: float(x[0]), reverse=True)
 	check_extremum(image, ranked, MBR_list, dsc)
  	printable(dsc, labels, area_list, MBR_list, COM_list)
- 	return MBR_list, COM_list, labels
+ 	return MBR_list, COM_list, area_list, labels, dsc
 	
 def printable(dsc, labels, area_list, MBR_list, COM_list):
 	outfile = codecs.open('part1_output.txt', encoding = 'utf-8', mode = 'w')
